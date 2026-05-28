@@ -1,4 +1,8 @@
-# phstl
+# PHSTL
+
+This is a fork of [anoved/phstl](https://github.com/anoved/phstl) in order to have python 3 compatiblity.
+
+**Description**
 
 Convert [GDAL](http://www.gdal.org/) rasters to STL mesh. Intended to produce landscape models from GeoTIFF heightmaps.
 
@@ -55,5 +59,3 @@ The output surface mesh is not a manifold object. Use another tool to solidify t
 ## License
 
 This project is released under an open source MIT license.
-
-It has been slightly modified by OpenFlightHub to work in python 3
