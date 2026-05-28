@@ -27,13 +27,13 @@ The output surface mesh is not a manifold object. Use another tool to solidify t
 ## Usage
 
     usage: phstl.py [-h] [-x X] [-y Y] [-z Z] [-b BASE] [-c] [-v] RASTER [STL]
-    
+
     Convert a GDAL raster (like a GeoTIFF heightmap) to an STL terrain surface.
-    
+
     positional arguments:
       RASTER                Input heightmap image
       STL                   Output STL path (stdout)
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -x X                  Fit output x to extent (mm)
@@ -47,7 +47,7 @@ The output surface mesh is not a manifold object. Use another tool to solidify t
                             Omit vertices below minimum elevation
       -M MAXIMUM, --maximum MAXIMUM
                             Omit vertices above maximum elevation
- 
+
 ## Prerequisites
 
 - [GDAL/OGR in Python](http://trac.osgeo.org/gdal/wiki/GdalOgrInPython) (`sudo easy_install gdal`)
@@ -55,3 +55,5 @@ The output surface mesh is not a manifold object. Use another tool to solidify t
 ## License
 
 This project is released under an open source MIT license.
+
+It has been slightly modified by OpenFlightHub to work in python 3
