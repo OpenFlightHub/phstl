@@ -364,4 +364,110 @@ with stlwriter(args.STL, facetcount) as mesh:
 		# Update progress each row
 		gdal.TermProgress(float(y + 1) / mh)
 
+	# Create vertical walls and base to make a solid mesh
+	base_elev = (zscale * (stats[0] - zmin)) + args.base
+
+	# Helper to convert pixel coordinates and elevation to output mesh coordinates
+	def pixel_to_coord(x_pixel, y_pixel, elev):
+		return (
+			t[0] + (x_pixel * t[1]) + (y_pixel * t[2]),
+			t[3] + (x_pixel * t[4]) + (y_pixel * t[5]),
+			(zscale * (float(elev) - zmin)) + args.base
+		)
+
+	# Helper to get elevation at a single pixel
+	def get_pixel_elev(x_pixel, y_pixel):
+		data = band.ReadRaster(x_pixel, y_pixel, 1, 1, 1, 1, band.DataType)
+		return unpack(typemap.get(band.DataType), data)[0]
+
+	# Left edge (x = xmin)
+	for y in range(mh):
+		elev_top = get_pixel_elev(xmin, ymin + y)
+		elev_bot = get_pixel_elev(xmin, ymin + y + 1)
+
+		if skip(elev_top) or skip(elev_bot):
+			continue
+
+		p_top_surf = pixel_to_coord(xmin, ymin + y, elev_top)
+		p_bot_surf = pixel_to_coord(xmin, ymin + y + 1, elev_bot)
+		p_top_base = (p_top_surf[0], p_top_surf[1], base_elev)
+		p_bot_base = (p_bot_surf[0], p_bot_surf[1], base_elev)
+
+		mesh.add_facet((p_top_surf, p_bot_surf, p_top_base))
+		mesh.add_facet((p_bot_surf, p_bot_base, p_top_base))
+
+	# Right edge (x = xmin + mw)
+	for y in range(mh):
+		elev_top = get_pixel_elev(xmin + mw, ymin + y)
+		elev_bot = get_pixel_elev(xmin + mw, ymin + y + 1)
+
+		if skip(elev_top) or skip(elev_bot):
+			continue
+
+		p_top_surf = pixel_to_coord(xmin + mw, ymin + y, elev_top)
+		p_bot_surf = pixel_to_coord(xmin + mw, ymin + y + 1, elev_bot)
+		p_top_base = (p_top_surf[0], p_top_surf[1], base_elev)
+		p_bot_base = (p_bot_surf[0], p_bot_surf[1], base_elev)
+
+		mesh.add_facet((p_top_surf, p_bot_surf, p_top_base))
+		mesh.add_facet((p_bot_surf, p_bot_base, p_top_base))
+
+	# Top edge (y = ymin)
+	for x in range(mw):
+		elev_left = get_pixel_elev(xmin + x, ymin)
+		elev_right = get_pixel_elev(xmin + x + 1, ymin)
+
+		if skip(elev_left) or skip(elev_right):
+			continue
+
+		p_left_surf = pixel_to_coord(xmin + x, ymin, elev_left)
+		p_right_surf = pixel_to_coord(xmin + x + 1, ymin, elev_right)
+		p_left_base = (p_left_surf[0], p_left_surf[1], base_elev)
+		p_right_base = (p_right_surf[0], p_right_surf[1], base_elev)
+
+		mesh.add_facet((p_left_surf, p_right_surf, p_left_base))
+		mesh.add_facet((p_right_surf, p_right_base, p_left_base))
+
+	# Bottom edge (y = ymin + mh)
+	for x in range(mw):
+		elev_left = get_pixel_elev(xmin + x, ymin + mh)
+		elev_right = get_pixel_elev(xmin + x + 1, ymin + mh)
+
+		if skip(elev_left) or skip(elev_right):
+			continue
+
+		p_left_surf = pixel_to_coord(xmin + x, ymin + mh, elev_left)
+		p_right_surf = pixel_to_coord(xmin + x + 1, ymin + mh, elev_right)
+		p_left_base = (p_left_surf[0], p_left_surf[1], base_elev)
+		p_right_base = (p_right_surf[0], p_right_surf[1], base_elev)
+
+		mesh.add_facet((p_left_surf, p_right_surf, p_left_base))
+		mesh.add_facet((p_right_surf, p_right_base, p_left_base))
+
+	# Base face (4 corners of the rectangle at minimum elevation)
+	p_base_00 = (
+		t[0] + (xmin * t[1]) + (ymin * t[2]),
+		t[3] + (xmin * t[4]) + (ymin * t[5]),
+		base_elev
+	)
+	p_base_10 = (
+		t[0] + ((xmin + mw) * t[1]) + (ymin * t[2]),
+		t[3] + ((xmin + mw) * t[4]) + (ymin * t[5]),
+		base_elev
+	)
+	p_base_01 = (
+		t[0] + (xmin * t[1]) + ((ymin + mh) * t[2]),
+		t[3] + (xmin * t[4]) + ((ymin + mh) * t[5]),
+		base_elev
+	)
+	p_base_11 = (
+		t[0] + ((xmin + mw) * t[1]) + ((ymin + mh) * t[2]),
+		t[3] + ((xmin + mw) * t[4]) + ((ymin + mh) * t[5]),
+		base_elev
+	)
+
+	# Two triangles for the base rectangle
+	mesh.add_facet((p_base_00, p_base_01, p_base_10))
+	mesh.add_facet((p_base_10, p_base_01, p_base_11))
+
 log("actual facet count: %s" % str(mesh.written))
