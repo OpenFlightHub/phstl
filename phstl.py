@@ -365,7 +365,7 @@ with stlwriter(args.STL, facetcount) as mesh:
 		gdal.TermProgress(float(y + 1) / mh)
 
 	# Create vertical walls and base to make a solid mesh
-	base_elev = (zscale * (stats[0] - zmin)) + args.base
+	base_elev = (zscale * (stats[0] - zmin))# + args.base
 
 	# Helper to convert pixel coordinates and elevation to output mesh coordinates
 	def pixel_to_coord(x_pixel, y_pixel, elev):
