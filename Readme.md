@@ -1,6 +1,10 @@
 # PHSTL
 
-This is a fork of [anoved/phstl](https://github.com/anoved/phstl) in order to have python 3 compatiblity.
+This is a fork of [anoved/phstl](https://github.com/anoved/phstl)
+
+New Features:
+* Python 3 compatiblity
+* --solid option
 
 **Description**
 
